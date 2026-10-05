@@ -1,0 +1,6 @@
+c5a56913a0cf720e03315a6671ebb5438a298f1315f0d4bcc6bef47fac7d3f61  wolf-root-public.pem
+adaa79a437d59a498b6f46589f4c5ae2f7488fce411999e48d2eb499d24dbc3c  wolf-sign-01-public.pem
+969ae87dccab7fb7976992048be76b791f0f0e7767ea6d4084bfb152e961dfee  trust/keyset-envelope.json
+ffb79777fa60f1de056548faecae5f9e943a53b7d0111450b9c23d5bb606cebd  trust/keysets/1/keyset.json
+89726177c9bffb42539726aa6680b4fcd1b7a07d873070e43e6f6f5f0eeb1fee  trust/keysets/1/keyset.sig
+969ae87dccab7fb7976992048be76b791f0f0e7767ea6d4084bfb152e961dfee  trust/keysets/1/keyset-envelope.json
