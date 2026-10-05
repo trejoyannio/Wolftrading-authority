@@ -26,7 +26,7 @@ jobs:
             echo "Forbidden private-material path detected"
             exit 1
           fi
-          if git grep -I -n -E -- '-----BEGIN (ENCRYPTED )?PRIVATE KEY-----|BEGIN RSA PRIVATE KEY|BEGIN EC PRIVATE KEY|WOLF_ANDROID_KEYSTORE_B64|password[[:space:]]*=' -- .; then
+          if git grep -I -n -E -- '-----BEGIN (ENCRYPTED )?PRIVATE KEY-----|BEGIN RSA PRIVATE KEY|BEGIN EC PRIVATE KEY|WOLF_ANDROID_KEYSTORE_B64|password[[:space:]]*=' -- . ':(exclude).github/workflows/authority-integrity.yml'; then
             echo "Forbidden secret/private-key content detected"
             exit 1
           fi
