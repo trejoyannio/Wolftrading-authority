@@ -1,0 +1,9 @@
+{
+  "service": "Wolftrading Protocol Authority",
+  "stage": "TRUST_BOOTSTRAP",
+  "rootKeyId": "wolf-root-01",
+  "keysetGeneration": 1,
+  "currentPublished": false,
+  "newTrades": "LOCKED",
+  "message": "Public trust bootstrap is live. Protocol CURRENT is intentionally not published yet."
+}
