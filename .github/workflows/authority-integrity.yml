@@ -1,0 +1,73 @@
+name: Authority Integrity
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reject private or secret material
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git ls-files | grep -Ei '\.(jks|keystore|p12|pfx)$|(^|/)(private|recovery|secrets?)/'; then
+            echo "Forbidden private-material path detected"
+            exit 1
+          fi
+          if git grep -I -n -E -- '-----BEGIN (ENCRYPTED )?PRIVATE KEY-----|BEGIN RSA PRIVATE KEY|BEGIN EC PRIVATE KEY|WOLF_ANDROID_KEYSTORE_B64|password[[:space:]]*=' -- .; then
+            echo "Forbidden secret/private-key content detected"
+            exit 1
+          fi
+
+      - name: Verify bootstrap checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha256sum -c SHA256SUMS
+
+      - name: Verify keyset envelope matches immutable generation 1 snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64, json, pathlib
+          envelope = json.loads(pathlib.Path("trust/keyset-envelope.json").read_text())
+          keyset_bytes = base64.b64decode(envelope["keysetBase64"])
+          immutable = pathlib.Path("trust/keysets/1/keyset.json").read_bytes()
+          if keyset_bytes != immutable:
+              raise SystemExit("CURRENT keyset envelope differs from generation-1 snapshot")
+          sig = envelope["rootSignatureBase64"].strip()
+          immutable_sig = pathlib.Path("trust/keysets/1/keyset.sig").read_text().strip()
+          if sig != immutable_sig:
+              raise SystemExit("CURRENT keyset signature differs from immutable snapshot")
+          keyset = json.loads(immutable)
+          if keyset["rootKeyId"] != "wolf-root-01":
+              raise SystemExit("Unexpected rootKeyId")
+          if keyset["generation"] != 1:
+              raise SystemExit("Unexpected keyset generation")
+          PY
+
+      - name: Verify Root signature on keyset generation 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 --decode trust/keysets/1/keyset.sig > /tmp/keyset.sig.der
+          openssl dgst -sha256             -verify wolf-root-public.pem             -signature /tmp/keyset.sig.der             trust/keysets/1/keyset.json
+
+      - name: Verify CURRENT remains absent during bootstrap
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -e current/release-envelope.json
