@@ -66,8 +66,21 @@ jobs:
           base64 --decode trust/keysets/1/keyset.sig > /tmp/keyset.sig.der
           openssl dgst -sha256             -verify wolf-root-public.pem             -signature /tmp/keyset.sig.der             trust/keysets/1/keyset.json
 
-      - name: Verify CURRENT remains absent during bootstrap
+      - name: Verify CURRENT structure and coverage gate
         shell: bash
         run: |
           set -euo pipefail
-          test ! -e current/release-envelope.json
+          python3 tools/verify_current.py
+
+      - name: Verify CURRENT release signature when published
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -e current/release-envelope.json; then
+            openssl dgst -sha256 \
+              -verify /tmp/wolf-current-signer.pem \
+              -signature /tmp/wolf-current-signature.der \
+              /tmp/wolf-current-manifest.json
+          else
+            echo "CURRENT absent: bootstrap mode."
+          fi
