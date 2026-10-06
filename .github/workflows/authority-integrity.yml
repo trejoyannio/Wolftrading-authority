@@ -66,6 +66,12 @@ jobs:
           base64 --decode trust/keysets/1/keyset.sig > /tmp/keyset.sig.der
           openssl dgst -sha256             -verify wolf-root-public.pem             -signature /tmp/keyset.sig.der             trust/keysets/1/keyset.json
 
+      - name: Verify rollback risk registry trust gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/verify_rollback_risk_registry.py
+
       - name: Verify CURRENT structure and coverage gate
         shell: bash
         run: |
