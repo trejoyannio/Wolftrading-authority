@@ -36,6 +36,7 @@ The absence of `current/release-envelope.json` is deliberate until a sufficientl
 - `wolf-sign-01-public.pem`
 - `trust/keyset-envelope.json`
 - `trust/keysets/1/*`
+- `trust/rollback-risk-registry-envelope.json` — required before CURRENT publication; may be absent only during bootstrap
 - `status.json`
 - `SHA256SUMS`
 
@@ -55,3 +56,10 @@ Never commit:
 - private account or broker credentials
 
 See `SECURITY.md`.
+
+
+## Rollback risk trust gate
+
+Before CURRENT can be published, Authority must contain a root-signed `trust/rollback-risk-registry-envelope.json`.
+The registry is independent of release artifacts and carries per-protocol risk manifests signed by an ACTIVE operational signing key.
+The root and signing private keys remain offline and must never be committed.
